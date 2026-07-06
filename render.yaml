@@ -1,0 +1,71 @@
+services:
+  # ── ResQAI Backend API ────────────────────────────────────────────────────
+  - type: web
+    name: resqai-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # Render automatically sets PORT and injects it into the container
+    # Our CMD uses shell form: uvicorn main:app --port ${PORT}
+    # so it binds to exactly the port Render is scanning.
+    healthCheckPath: /health
+    envVars:
+      # ── Application ───────────────────────────────────────────────────
+      - key: APP_NAME
+        value: ResQAI
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
+
+      # ── Demo Mode (set to false when Firebase is ready) ───────────────
+      - key: DEMO_MODE
+        value: "true"
+
+      # ── JWT ───────────────────────────────────────────────────────────
+      - key: JWT_SECRET_KEY
+        generateValue: true   # Render auto-generates a secure random value
+
+      # ── Firebase (fill in your values) ────────────────────────────────
+      - key: FIREBASE_PROJECT_ID
+        value: resqai-dd624
+      - key: FIREBASE_STORAGE_BUCKET
+        value: resqai-dd624.firebasestorage.app
+      - key: FIREBASE_WEB_API_KEY
+        sync: false   # Set manually in Render dashboard
+
+      # ── Mistral AI ────────────────────────────────────────────────────
+      - key: MISTRAL_API_KEY
+        sync: false   # Set manually in Render dashboard
+      - key: MISTRAL_MODEL
+        value: mistral-large-latest
+
+      # ── Google Gemini ─────────────────────────────────────────────────
+      - key: GOOGLE_API_KEY
+        sync: false   # Set manually in Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-1.5-pro
+
+      # ── LangSmith ─────────────────────────────────────────────────────
+      - key: LANGSMITH_API_KEY
+        sync: false   # Set manually in Render dashboard
+      - key: LANGCHAIN_API_KEY
+        sync: false
+      - key: LANGCHAIN_TRACING_V2
+        value: "true"
+      - key: LANGCHAIN_PROJECT
+        value: ResQAI
+      - key: LANGCHAIN_ENDPOINT
+        value: https://api.smith.langchain.com
+
+      # ── CORS ──────────────────────────────────────────────────────────
+      - key: CORS_ORIGINS
+        value: https://resqai.onrender.com,http://localhost:3000
+
+      # ── SLA ───────────────────────────────────────────────────────────
+      - key: SLA_CRITICAL_MINUTES
+        value: "30"
+      - key: SLA_HIGH_MINUTES
+        value: "60"

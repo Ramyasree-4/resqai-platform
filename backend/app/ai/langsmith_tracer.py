@@ -44,7 +44,7 @@ logger = get_logger(__name__)
 
 # ── Module-level state ────────────────────────────────────────────────────────
 _LANGSMITH_AVAILABLE: bool = False
-_client = None               # langsmith.Client instance
+_client = None               # langsmith.Client instance — set by init_langsmith()
 _project: str = "ResQAI"
 _environment: str = os.getenv("ENVIRONMENT", "development")
 
@@ -136,8 +136,9 @@ def init_langsmith() -> bool:
         return False
 
 
-# Run init on module import (non-blocking — errors are caught)
-init_langsmith()
+# NOTE: init_langsmith() is NOT called at module import.
+# It is called explicitly from main.py lifespan startup.
+# This prevents blocking network calls during module import on Render.
 
 
 # ── AITrace  ──────────────────────────────────────────────────────────────────
